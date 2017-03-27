@@ -35,8 +35,7 @@ Graph* read_graph(char* filename);
 void validate_vertex_ids(Options options, int graph_size);
 
 
-int main(int argc, char** argv) {
-	
+int main(int argc, char** argv) {	
 	// parse command line options
 	Options options = get_options(argc, argv);
 
