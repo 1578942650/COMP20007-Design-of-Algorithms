@@ -1,60 +1,64 @@
 /* * * * * * *
- * Module for creating and manipulating queue of integers
+ * Module for creating and manipulating queues of integers
  *
  * created for COMP20007 Design of Algorithms 2017
- * by Siyi Guo (siyig1@student.unimelb.edu.au)
+ * by Matt Farrugia <matt.farrugia@unimelb.edu.au>
  */
- #include <stdlib.h>
- #include <assert.h>
- #include "list.h"
- #include "queue.h"
 
-typedef struct node Node;
+#include <stdlib.h>
+#include <assert.h>
+#include "list.h"	// gives us access to everything defined in list.h
+#include "queue.h"	// and we'll also need the prototypes defined in queue.h
 
-struct node
-{
-	Node *next;
-	int data;
+// a Queue is just a wrapper for a list of its items
+// we will use the back of the list as the entry point, and the front as the 
+// exit point (to take advantage of O(1) insert and remove operations)
+struct queue {
+	List *items;
 };
 
-struct queue 
-{
-	List *list; 
-};
+/* * * *
+ * FUNCTION DEFINITIONS
+ */
 
+// create a new queue and return its pointer
+Queue *new_queue() {
+	Queue *queue = malloc(sizeof *queue);
+	assert(queue);
 
-//produce a new queue head
-Queue *new_queue()
-{
- 	Queue *queue = malloc(sizeof *queue);
- 	assert(queue);
- 	queue->list = new_list();
- 	return queue;
+	queue->items = new_list();
+	
+	return queue;
 }
 
- //destroy a stack and free it memory
-void free_queue(Queue *queue)
-{
- 	assert(queue != NULL);
- 	free_list(queue->list);
-}
-
- //enter into the queue;
-void queue_enqueue(Queue *queue, int data)
-{
- 	assert(queue != NULL);
- 	list_add_end(queue->list, data);
-}
-
-int queue_dequeue(Queue *queue)
-{
- 	assert(queue != NULL);
- 	return list_remove_start(queue->list);
-}
-
-//find the size of a queue
-int queue_size(Queue *queue)
-{
+// destroy a queue and its associated memory
+void free_queue(Queue *queue) {
 	assert(queue != NULL);
- 	return list_size(queue->list);
+	// free the list of items, and the queue itself
+	free_list(queue->items);
+	free(queue);
+}
+
+// insert a new item at the back of a queue. O(1).
+void queue_enqueue(Queue *queue, int data) {
+	assert(queue != NULL);
+	// use the back of the list as the entry point
+	list_add_end(queue->items, data);
+}
+
+// remove and return the item at the front of a queue. O(1).
+// error if the queue is empty (so first ensure queue_size() > 0)
+int queue_dequeue(Queue *queue) {
+	assert(queue != NULL);
+	assert(queue_size(queue) > 0);
+
+	// use the front of the list as the exit point
+	return list_remove_start(queue->items);
+}
+
+// return the number of items currently in a queue
+int queue_size(Queue *queue) {
+	assert(queue != NULL);
+	// delegate straight to list size function
+	return list_size(queue->items);
 }

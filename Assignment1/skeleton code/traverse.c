@@ -71,6 +71,7 @@ void print_dfs(Graph* graph, int source_id)
 				edge = edge->next_edge;
 			}
 
+ 
 			//reverse the order 
 			while (stack_size(children) > 0)
 			{
@@ -80,10 +81,12 @@ void print_dfs(Graph* graph, int source_id)
 
 			//marked as explored
 			explored[node] = EXPLORED;
+			free_stack(children);
 		}
 	}
 
 	free(explored);
+	free_stack(unexplored);
 }
 
 void print_bfs(Graph* graph, int source_id) 
@@ -123,8 +126,9 @@ void print_bfs(Graph* graph, int source_id)
 			explored[node] = EXPLORED;
 		}
 	}
-
+	//free(unexplored);
 	free(explored);
+	free_queue(unexplored);
 }
 
 //part3 (use dijkstra)
@@ -144,7 +148,9 @@ int find_pivot_point(struct node_dist *path, int length)
 
 	int shortest_dist = INFINITY; // shortest distance from source
 	int pivot = 0;
-	for (int i = 0; i < length; i++)
+
+	int i;
+	for (i = 0; i < length; i++)
 	{
 		if (path[i].distance < shortest_dist && path[i].permant_label == NOT)
 		{
@@ -163,7 +169,9 @@ void detailed_path(Graph* graph, int source_id, int destination_id)
 	dij_path = malloc(graph->maxn * sizeof(struct node_dist));
 	dij_path[source_id].distance = 0;
 	dij_path[source_id].parent_id = 0;
-	for (int i = 0; i < graph->maxn; i++ )
+
+	int i;
+	for (i = 0; i < graph->maxn; i++ )
 	{
 		if (i != source_id)
 		{
@@ -175,7 +183,8 @@ void detailed_path(Graph* graph, int source_id, int destination_id)
 
 
 	//Dijkstra algorithm
-	for(int count = 0; count < graph->maxn; count++)
+	int count;
+	for(count = 0; count < graph->maxn; count++)
 	{
 		//find the node with shortest distance
 		int pivot = find_pivot_point(dij_path, graph->maxn);
@@ -233,6 +242,7 @@ void detailed_path(Graph* graph, int source_id, int destination_id)
 					dij_path[cities].distance);
 	}
 	free(dij_path);	
+	free_stack(shortest_path);
 }
 
 //part4
@@ -245,6 +255,7 @@ void print_out_path(Graph *graph, int *output, int depth)
 	}
 	printf("%s\n", graph->vertices[output[i]]->label);
 }
+
 void dfs(Graph* graph, int source_id, int destination_id, 
 			int *output, int depth, int *explored)
 {
@@ -282,7 +293,6 @@ void dfs(Graph* graph, int source_id, int destination_id,
 }
 void all_paths(Graph* graph, int source_id, int destination_id) 
 {
-	show_input(graph, source_id);
 	//initialise the explored array
 	int *explored = NULL;
 	explored = (int*)calloc(graph->maxn, sizeof(int));
@@ -307,7 +317,9 @@ void shortest_path(Graph* graph, int source_id, int destination_id)
 	dij_path = malloc(graph->maxn * sizeof(struct node_dist));
 	dij_path[source_id].distance = 0;
 	dij_path[source_id].parent_id = 0;
-	for (int i = 0; i < graph->maxn; i++ )
+
+	int i;
+	for (i = 0; i < graph->maxn; i++ )
 	{
 		if (i != source_id)
 		{
@@ -319,7 +331,8 @@ void shortest_path(Graph* graph, int source_id, int destination_id)
 
 
 	//Dijkstra algorithm
-	for(int count = 0; count < graph->maxn; count++)
+	int count;
+	for(count = 0; count < graph->maxn; count++)
 	{
 		//find the node with shortest distance
 		int pivot = find_pivot_point(dij_path, graph->maxn);
@@ -349,25 +362,25 @@ void shortest_path(Graph* graph, int source_id, int destination_id)
 	}
 
 	//show the result
-	Stack *shortest_path = new_stack();
+	Stack *short_path = new_stack();
 	int parent_id = graph->maxn;
 	int prev_dis = destination_id;
 
 	//trace back path from destination id
 	while(parent_id != 0)
 	{
-		stack_enstack(shortest_path, prev_dis);
+		stack_enstack(short_path, prev_dis);
 		parent_id = dij_path[prev_dis].parent_id;
 		prev_dis = parent_id;
 	}
 
 	//out put the path cities
-	while (stack_size(shortest_path) > 0)
+	while (stack_size(short_path) > 0)
 	{
-		int cities = stack_destack(shortest_path);
+		int cities = stack_destack(short_path);
 
 		//if this is the last item in stack
-		if (stack_size(shortest_path) == 0)
+		if (stack_size(short_path) == 0)
 			printf("%s ", graph->vertices[cities]->label);
 		else
 			printf("%s, ", graph->vertices[cities]->label);
@@ -376,4 +389,5 @@ void shortest_path(Graph* graph, int source_id, int destination_id)
 	printf("(%dkm)", dij_path[destination_id].distance);
 
 	free(dij_path);
+	free_stack(short_path);
 }
